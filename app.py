@@ -230,6 +230,9 @@ def login():
     # User reached route via POST (as by submitting a form via POST)
     if request.method == "POST":
 
+        username = request.form.get("username")
+        password = request.form.get("password")
+
         # Ensure username was submitted
         if not request.form.get("username"):
             return apology("must provide username", 403)
@@ -238,17 +241,14 @@ def login():
         elif not request.form.get("password"):
             return apology("must provide password", 403)
 
-        ################# TEST #######################
-
-        with app.test_request_context():
-            print(request.form.get("username"))
-        ##############################################
+        x = request.form.get("username")
+        y = request.form.get("password")
 
         # Query database for username
-        user_info = Users.query.filter_by(username=request.form.get("username")).first()
+        user_info = Users.query.filter_by(username=username).first()
 
         # Ensure username exists and password is correct
-        if user_info != None or not check_password_hash(user_info.hash, request.form.get("password")):
+        if user_info == None or not check_password_hash(user_info.hash, password):
             return apology("invalid username and/or password", 403)
 
         # Remember which user has logged in
