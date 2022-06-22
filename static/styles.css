@@ -21,7 +21,14 @@ nav .navbar-brand .green
 {
     color: #2e944b;
 }
-
+nav .navbar-brand .purple
+{
+    color: #800080;
+}
+nav .navbar-brand .black
+{
+    color: #000000;
+}
 
 /* used to center form tags */
 .form-center
