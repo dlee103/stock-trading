@@ -92,28 +92,40 @@ def index():
     """Show portfolio of stocks"""
     #extracting a list of dictionaries containing the stocks the user holds
     #stocks_owned = db.execute("SELECT * FROM stocks WHERE user_id=?", session["user_id"])
-    stocks_owned = Stocks.query.filter_by(user_id = session["user_id"]).first()
+    stocks_owned = Stocks.query.filter_by(user_id = session["user_id"]).all()
 
     #getting how much cash the user currently holds
-    #cash = db.execute("SELECT cash FROM users WHERE id=?", session["user_id"])
     user_cash = Users.query.filter_by(id = session["user_id"]).first()
-
-    #cash = cash[0]["cash"]
     cash = user_cash.cash
 
     #initializing the total assets the user has
     #the for loop below will loop thru each stock the user owns and add onto the grand total
     grand_total = cash
 
-    #looping thru each stock and adding the name, price, and total value the user holds
-    for stocks in stocks_owned:
-        x = lookup(stocks["symbol"])
-        stocks["name"] = x["name"]
-        stocks["price"] = x["price"]
-        stocks["total"] = x["price"] * stocks["quantity"]
-        grand_total += stocks["total"]
+    #creating a list of dictionaries for each stock the user owns
+    stocks = []
 
-    return render_template("index.html", stocks=stocks_owned, grand_total=grand_total, cash=cash)
+    #looping thru each stock and adding the name, price, and total value the user holds
+    for user_stock in stocks_owned:
+
+        #looking up the stock info
+        x = lookup(stocks["symbol"])
+        
+        #creaing a temp dictionary to fill in the stock info
+        tmp = {}
+
+        #filling in the stock info
+        tmp["name"] = x["name"]
+        tmp["price"] = x["price"]
+        tmp["total"] = x["price"] * user_stock.quantity
+
+        #adding to the total amount of money the user currently hold (stocks and cash)
+        grand_total += tmp["total"]
+
+        #appending the dictionary of the stock info to the list
+        stocks.append(tmp)
+
+    return render_template("index.html", stocks=stocks, grand_total=grand_total, cash=cash)
 
 
 
@@ -201,7 +213,11 @@ def history():
     #creating a list of dictionaries for each transaction 
     rows = []
     for transaction in user_transactions:
+
+        #creating a temp dictionary to fill in the transaction info 
         tmp = {}
+
+        #filling in the transaction info
         tmp["quantity"] = transaction.quantity
         tmp["amount"] = transaction.amount
         tmp["type"] = transaction.type
@@ -234,15 +250,12 @@ def login():
         password = request.form.get("password")
 
         # Ensure username was submitted
-        if not request.form.get("username"):
+        if not username:
             return apology("must provide username", 403)
 
         # Ensure password was submitted
-        elif not request.form.get("password"):
+        elif not password:
             return apology("must provide password", 403)
-
-        x = request.form.get("username")
-        y = request.form.get("password")
 
         # Query database for username
         user_info = Users.query.filter_by(username=username).first()
@@ -395,12 +408,25 @@ def sell():
 
     if request.method == "GET":
         #Getting the names of the stock the user owns and passing it to the html file
-        stock_name = db.execute("SELECT symbol FROM stocks WHERE user_id=?", session["user_id"])
+        stocks = Stocks.query.filter_by(user_id=session["user_id"]).all()
+
+        #creating a list of dictionaries of the stock name
+        stock_names = []
 
         #going thru each dictionary and adding the full company name along with the symbol
-        for name in stock_name:
-            name["name"] = lookup(name["symbol"])["name"]
-        return render_template("sell.html", stock_name=stock_name)
+        for stock in stocks:
+
+            #creating a tmp dictionary to fill in the stock name and symbol
+            tmp = {}
+
+            #filling in the stock name and symbol
+            tmp["name"] = lookup(stock.symbol)["name"]
+            tmp["symbol"] = stock.symbol
+
+            #appending the dictionary to the list
+            names.append(tmp)
+
+        return render_template("sell.html", stock_name=stock_names)
 
 @app.route("/change_pswd", methods=["GET", "POST"])
 @login_required
