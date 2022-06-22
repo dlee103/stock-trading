@@ -27,7 +27,7 @@
                         {% else %}
                             <td class="sold">{{ row["type"] }}</td>
                         {% endif %}
-                        <td>{{ row["quantity"] }} of {{ row["symbol"] }}</td>
+                        <td>{{ '%0.1f' % row["quantity"]  }} of {{ row["symbol"] }}</td>
                         <td> {{ row["amount"] | usd }} </td>
                     </tr>
                 {% endfor %}

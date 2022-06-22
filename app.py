@@ -55,8 +55,10 @@ def after_request(response):
 #Create model for the database
 class Users(db.Model):
 
+    #name of the table
     __tablename__ = "users"
 
+    #naming the columns of the table and the type in each column
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     username = db.Column(db.String(100), nullable=False)
     hash = db.Column(db.String(110), nullable=False)
@@ -96,7 +98,7 @@ def index():
 
     #getting how much cash the user currently holds
     user_cash = Users.query.filter_by(id = session["user_id"]).first()
-    cash = user_cash.cash
+    cash = float(user_cash.cash)
 
     #initializing the total assets the user has
     #the for loop below will loop thru each stock the user owns and add onto the grand total
@@ -109,7 +111,7 @@ def index():
     for user_stock in stocks_owned:
 
         #looking up the stock info
-        x = lookup(stocks["symbol"])
+        x = lookup(user_stock.symbol)
         
         #creaing a temp dictionary to fill in the stock info
         tmp = {}
@@ -117,7 +119,9 @@ def index():
         #filling in the stock info
         tmp["name"] = x["name"]
         tmp["price"] = x["price"]
-        tmp["total"] = x["price"] * user_stock.quantity
+        tmp["total"] = x["price"] * float(user_stock.quantity)
+        tmp["symbol"] = x["symbol"]
+        tmp["quantity"] = float(user_stock.quantity)
 
         #adding to the total amount of money the user currently hold (stocks and cash)
         grand_total += tmp["total"]
@@ -154,7 +158,7 @@ def buy():
         user_info = Users.query.filter_by(id = session["user_id"]).first()
 
         #checking whether user has sufficient cash to purchase stocks
-        remaining_balance = user_info.cash - info["price"]*qty
+        remaining_balance = float(user_info.cash) - info["price"]*qty
         if remaining_balance < 0:
             return apology("Insufficient funds to make purchase")
 
@@ -181,8 +185,7 @@ def buy():
 
         #if user already owns that particular stock
         else:
-            #db.execute("UPDATE stocks SET quantity = ? WHERE user_id = ? AND symbol = ?", existing_stock[0]["quantity"] + qty, session["user_id"], info["symbol"])
-            user_stock.quantity += qty
+            user_stock.quantity = float(user_stock.quantity) + qty
 
         #commiting the changes made to the db variable to the database file
         db.session.commit()
@@ -201,8 +204,6 @@ def buy():
 def history():
     """Show history of transactions"""
     #getting all data from the transaction table
-    #rows = db.execute("SELECT * FROM transactions WHERE user_id=? ORDER BY transaction_time DESC", session["user_id"])
-
     user_transactions = Transactions.query.filter_by(user_id=session["user_id"]).order_by(Transactions.transaction_time.desc()).all()
 
     #going thru each dictionary and adding the full company name using the API
@@ -222,12 +223,17 @@ def history():
         tmp["amount"] = transaction.amount
         tmp["type"] = transaction.type
         tmp["transaction_time"] = transaction.transaction_time
+        tmp["symbol"] = transaction.symbol
 
         #if the name already exists in the dict use that one otherwise lookup the name with the API
         if transaction.symbol in names:
             tmp["name"] = names[transaction.symbol]
+
         else:
             tmp["name"] = lookup(transaction.symbol)["name"]
+
+            #adding the name of the company to be quickly referenced
+            names[transaction.symbol] = tmp["name"]
         
         #appending the current transaction info dictionary to the list
         rows.append(tmp)
@@ -373,30 +379,24 @@ def sell():
             return apology("Invalid amount of shares")
 
         #extracting how many shares the user holds for that particular stock
-        #stock_qty = stocks[0]["quantity"]
-
-        #extracting how many shares the user holds for that particular stock
         user_stocks = Stocks.query.filter_by(user_id=session["user_id"], symbol=info["symbol"]).first()
 
 
         #checking whether user owns enough shares to sell that much stock
-        if user_stocks.quantity < qty:
+        if float(user_stocks.quantity) < qty:
             return apology("Insufficient amount of shares to sell")
-
-        #extracting user's current balance
-        #cash = cash[0]["cash"]
 
         #querying the databse for the user's info
         user_info = Users.query.filter_by(id=session["user_id"]).first()
 
         #updating new balance for the user after selling stock
-        user_info.cash += qty*info["price"]
+        user_info.cash = float(user_info.cash) + qty*info["price"]
         
         #logging the user's transaction by creating a new row in the transactions table
         db.session.add(Transactions(user_id=session["user_id"], symbol=info["symbol"], quantity=qty, amount=info["price"]*qty, type="Sold"))
 
         #Updating the amount of shares left in that stock
-        user_stocks.quantity -= qty 
+        user_stocks.quantity = float(user_stocks.quantity) - qty 
 
         #committing the changes made to the database file
         db.session.commit()
@@ -424,7 +424,7 @@ def sell():
             tmp["symbol"] = stock.symbol
 
             #appending the dictionary to the list
-            names.append(tmp)
+            stock_names.append(tmp)
 
         return render_template("sell.html", stock_name=stock_names)
 
@@ -494,22 +494,13 @@ def buy_more():
         if qty < 1:
             return apology("Invalid amount of shares")
 
-        #extracting user's current balance
-        cash = db.execute("SELECT cash FROM users WHERE id = ?", session["user_id"])
-        cash = cash[0]["cash"]
-
         #Get the user's data from the requesting user
-        user_info = Users.query.filter_by(id=session["user_id"])
-
+        user_info = Users.query.filter_by(id=session["user_id"]).first()
 
         #checking whether user has sufficient cash to purchase stocks
-        remaining_balance = user_info.cash - info["price"]*qty
+        remaining_balance = float(user_info.cash) - info["price"]*qty
         if remaining_balance < 0:
             return apology("Insufficient funds to make purchase")
-
-        #if user does have sufficient cash, update the tables
-        db.execute("UPDATE users SET cash = ? WHERE id = ?", remaining_balance, session["user_id"])
-        db.execute("INSERT INTO transactions (user_id, symbol, quantity, amount, type, transaction_time) VALUES(?,?,?,?,?,DATETIME())", session["user_id"], info["symbol"], qty, info["price"]*qty, "Bought")
 
         #Updating the users cash in the table if the user has sufficient cash
         user_info.cash = remaining_balance
@@ -521,7 +512,7 @@ def buy_more():
         user_stock = Stocks.query.filter_by(user_id = session["user_id"], symbol=info["symbol"]).first()
 
         #updating the amount of stock the user has
-        user_stock.quantity += qty
+        user_stock.quantity = float(user_stock.quantity) + qty
 
         #commiting the changes made to the db variable to the database file
         db.session.commit()
@@ -554,31 +545,23 @@ def sell_more():
             return apology("Invalid amount of shares")
 
         #extracting how many shares the user holds for that particular stock
-        #stocks = db.execute("SELECT quantity FROM stocks WHERE user_id=? AND symbol=?", session["user_id"], info["symbol"])
-        #stock_qty = stocks[0]["quantity"]
-
-        #extracting how many shares the user holds for that particular stock
         user_stocks = Stocks.query.filter_by(user_id=session["user_id"], symbol=info["symbol"]).first()
     
         #checking whether user owns enough shares to sell that much stock
-        if user_stocks.quantity < qty:
+        if float(user_stocks.quantity) < qty:
             return apology("Insufficient amount of shares to sell")
-
-        #extracting user's current balance
-        #cash = db.execute("SELECT cash FROM users WHERE id = ?", session["user_id"])
-        #cash = cash[0]["cash"]
 
         #querying the databse for the user's info
         user_info = Users.query.filter_by(id=session["user_id"]).first()
 
         #updating new balance for the user after selling stock
-        user_info.cash += qty*info["price"]
+        user_info.cash = float(user_info.cash) + qty*info["price"]
 
         #logging the user's transaction by creating a new row in the transactions table
         db.session.add(Transactions(user_id=session["user_id"], symbol=info["symbol"], quantity=qty, amount=info["price"]*qty, type="Sold"))
 
         #Updating the amount of shares left in that stock
-        user_stocks.quantity -= qty 
+        user_stocks.quantity = float(user_stocks.quantity) - qty 
 
         #committing the changes made to the database file
         db.session.commit()
@@ -600,7 +583,7 @@ def add_cash():
         user_info = Users.query.filter_by(id=session["user_id"]).first()
         
         #Updating the amount of cash the user has
-        user_info.cash += deposit_amount
+        user_info.cash = float(user_info.cash) + deposit_amount
 
         #committing the changes made to the database file
         db.session.commit()
