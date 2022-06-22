@@ -437,7 +437,7 @@ def change_pswd():
     if request.method == "POST":
 
         #Get the user's data from the requesting user
-        user_info = Users.query.filter_by(id=session["user_id"])
+        user_info = Users.query.filter_by(id=session["user_id"]).first()
 
         #get the user's old password
         old_password = request.form.get("old_password")
