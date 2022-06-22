@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="initial-scale=1, width=device-width">
+
+        <!-- http://getbootstrap.com/docs/5.1/ -->
+        <link crossorigin="anonymous" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" rel="stylesheet">
+        <script crossorigin="anonymous" src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"></script>
+        <style>
+/* Size for brand */
+nav .navbar-brand
+{
+    font-size: xx-large;
+}
+
+/* Colors for brand */
+nav .navbar-brand .blue
+{
+    color: #537fbe;
+}
+nav .navbar-brand .red
+{
+    color: #ea433b;
+}
+nav .navbar-brand .yellow
+{
+    color: #f5b82e;
+}
+nav .navbar-brand .green
+{
+    color: #2e944b;
+}
+
+
+/* used to center form tags */
+.form-center
+{
+justify-content: center;
+}
+
+/* used to push the cash values to the right*/
+.cash
+{
+    text-align: right;
+}
+
+/*For the bought and sold columns in history.html*/
+.bought
+{
+    color: white !important;
+    background-color: green !important;
+}
+
+.sold
+{
+    color: white !important;
+    background-color: red !important;
+}
+/*------------------------------------------------------------------------*/
+
+.form_input.error input
+{
+    border-color: red;
+}
+
+.form_input.error small
+{
+    color: red;
+}
+
+.form_input.success input
+{
+    border-color: green;
+}
+
+.form_input.success small
+{
+    color: green;
+    border: 3px solid;
+}
+
+.msg_parentDiv
+{
+    border: 1px solid;
+    text-align: center;
+    margin: auto;
+
+}
+        </style>
+    </head>
+
+    <body>
+        <form action="/test.html" method="get" id="change_pswd">
+            <div class="mb-3 form_input">
+                <input autofocus class="form-control mx-auto w-auto" name="old_password" placeholder="Old Password" type="password">
+                <div class="msg_parentDiv"><small class="msg"></small></div>
+            </div>
+
+            <div class="mb-3 form_input">
+                <input id="password_1" class="form-control mx-auto w-auto" name="password_1" placeholder="New Password" type="password">
+                <div class="msg_parentDiv"><small class="msg"></small></div>
+            </div>
+
+            <div class="mb-3 form_input">
+                <input id="password_2" class="form-control mx-auto w-auto" name="password_2" placeholder="Confirm Password" type="password">
+                <div class="msg_parentDiv"><small class="msg"></small></div>
+            </div>
+            <button class="btn btn-primary" type="submit">Sign Up</button>
+        </form>
+        <script>
+    const form = document.querySelector("#change_pswd");
+    const password_1 = document.querySelector("#password_1");
+    const password_2 = document.querySelector("#password_2");
+
+    //function making the input border red and displaying an error message
+    function showError(input, message)
+    {
+        //get the parent element of the input that encompasses both the
+        //input tag and message tag
+        const parentDiv = input.parentElement;
+
+        //removing the success class from the div and adding the error class
+        //these classes change the border color
+        parentDiv.classList.remove("success");
+        parentDiv.classList.add("error");
+
+        // display the error message using the small tag with the class "msg"
+        const error = parentDiv.querySelector('.msg');
+        error.textContent = message;
+    }
+
+    //function making the input border green and displaying an error message
+    function showSuccess(input, message)
+    {
+        //get the parent element of the input that encompasses both the
+        //input tag and message tag
+        const parentDiv = input.parentElement;
+
+        //removing the error class from the div and adding the success class
+        //these classes change the border color
+        parentDiv.classList.remove("error");
+        parentDiv.classList.add("success");
+
+        // display the success message using the small tag with the class "msg"
+        parentDiv.querySelector('.msg').textContent = message;
+    }
+
+    //function to check if the input is blank
+    function isBlank(input)
+    {
+        //if the input is blank the function returns true
+        return (input ? false : true);
+        /*Another way to put this is
+        if (input)
+        {
+            return true
+        }
+        else
+        {
+            return false
+        }*/
+    }
+
+    //function checking whether the passwords match
+    function checkPassword(p1, p2)
+    {
+        let valid = false;
+
+        //getting the input values
+        const password = password_1.value.trim();
+        const confirmPassword = password_2.value.trim();
+
+        //check if user input is blank
+        if (isBlank(password))
+        {
+            showError(password_1, "Please enter new password");
+        }
+
+        else if (isBlank(confirmPassword))
+        {
+            showError(password_2, "Please re-enter new password");
+        }
+
+        //check if passwords are equal
+        else if (password != confirmPassword)
+        {
+            showError(password_2, "Passwords do not match");
+            showError(password_1, "");
+        }
+        else
+        {
+            showSuccess(password_1, "success!");
+            showSuccess(password_2, "");
+            valid = true;
+        }
+
+        return valid;
+    }
+
+    form.addEventListener("submit", function(event)
+    {
+        //clear the previous session
+        /*parentDiv.classList.remove("error");
+        parentDiv.classList.remove("success");*/
+        //LOOP THRU EVERY DIV WITH CLASS form-control and remove error and success classes
+
+        // Prevent the form from submitting
+        event.preventDefault();
+
+        //check if the password is valid
+        let isPasswordValid = checkPassword(password_1, password_2);
+
+        if (isPasswordValid)
+        {
+            /*alert("success!");*/
+        }
+    })
+
+    //some code that I found online
+    //delays the response to x amount of seconds
+    const debounce = (fn, delay = 1000) => {
+        let timeoutId;
+        return (...args) => {
+            // cancel the previous timer
+            if (timeoutId) {
+                clearTimeout(timeoutId);
+            }
+            // setup a new timer
+            timeoutId = setTimeout(() => {
+                fn.apply(null, args)
+            }, delay);
+        };
+    };
+
+    form.addEventListener("input", debounce(function(event)
+    {
+
+        //Don't need to use the switch case for now...
+        /*switch (event.target.id)
+        {
+            case "password_1":
+
+            case "password_2"
+        }*/
+
+        //use an input event listener for when the user starts typing in the "confirm password" box
+        /*doesnt make sense to also put it on the "New Password" box since it doesnt give the user
+        a chance to confirm the password*/
+        if (event.target.id == "password_2")
+        {
+            let isPasswordValid = checkPassword(password_1, password_2);
+        }
+
+    }))
+        </script>
+    </body>

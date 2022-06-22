@@ -1,0 +1,33 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Change Password
+{% endblock %}
+
+{% block main %}
+    <form action="/change_pswd" method="post" id="change_pswd">
+        <div class="mb-3 form_input">
+            <input autofocus class="form-control mx-auto w-auto" name="old_password" placeholder="Old Password" type="password">
+            <div class="responsive">
+                <small class="msg"></small>
+            </div>
+        </div>
+
+        <div class="mb-3 form_input">
+            <input id="password_1" class="form-control mx-auto w-auto" name="password_1" placeholder="New Password" type="password">
+            <div class="responsive">
+                <small class="msg"></small>
+            </div>
+        </div>
+
+        <div class="mb-3 form_input">
+            <input id="password_2" class="form-control mx-auto w-auto" name="password_2" placeholder="Confirm Password" type="password">
+            <div class="responsive">
+                <small class="msg"></small>
+            </div>
+        </div>
+        <button class="btn btn-primary" type="submit">Submit</button>
+    </form>
+
+    <script src="/static/change_pswd.js"> </script>
+{% endblock %}

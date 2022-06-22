@@ -1,0 +1,60 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Index
+{% endblock %}
+
+{% block main %}
+    <div>
+        <table class="table table-striped table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th>Symbol</th>
+                    <th>Name</th>
+                    <th>Current Price</th>
+                    <th>Shares Owned</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+
+            <tbody class="table-group-divider">
+                {% for stock in stocks %}
+                    <tr>
+                        <td> {{ stock["symbol"] }} </td>
+                        <td> {{ stock["name"] }} </td>
+                        <td> {{ stock["price"] | usd }} </td>
+                        <td> {{ stock["quantity"] }} </td>
+                        <td> {{ stock["total"] | usd }} </td>
+                        <td>
+                            <form action="/buy_more" method="get">
+                                <button class="btn btn-primary" type="submit" name="symbol" value="{{ stock.symbol }}"> Buy </button>
+                            </form>
+                        </td>
+                        <td>
+                            <form action="/sell_more" method="get">
+                                <button class="btn btn-primary" type="submit" name="symbol" value="{{ stock.symbol }}"> Sell </button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="display_cash">
+        <table class="table table-striped table-bordered">
+            <thead>
+                <tr>
+                    <th>Cash</th>
+                    <th>Net Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td> {{ cash | usd}} </td>
+                    <td> {{ grand_total | usd}} </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Buy Stocks
+{% endblock %}
+
+{% block main %}
+
+<!--somehow putting each input in a div then
+assigning the class "col-auto" seemed to make the input adjacent to each other
+rather being stakced vertically as seen on the login page
+code taken from: https://getbootstrap.com/docs/5.0/forms/form-control/
+col-auto probably means auto column? g-3 refers to gutter-->
+
+<form class="row g-3 form-center" action="/buy" method="post">
+    <div class="col-auto">
+        <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="symbol" placeholder="Symbol" type="text">
+    </div>
+    <div class="col-auto">
+        <input class="form-control mx-auto w-auto" name="shares" placeholder="Quantity" type="number">
+    </div>
+    <div class="col-auto">
+        <button class="btn btn-primary" type="submit">Purchase</button>
+    </div>
+</form>
+
+{% endblock %}

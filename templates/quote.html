@@ -1,0 +1,25 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Quote
+{% endblock %}
+
+{% block main %}
+
+    {% if alert %}
+        <script>
+            alert("Invalid Symbol")
+        </script>
+    {% endif %}
+
+<!--refer to buy.html to see similar styling-->
+    <form class="row g-3 form-center" action="/quote" method="post">
+        <div class="col-auto">
+            <input class="form-control mx-auto w-auto" autocomplete="off" name="symbol" placeholder="Symbol" type="text">
+        </div>
+
+        <div class="col-auto">
+            <button class="btn btn-primary mb-3" type="submit">Search</button>
+        </div>
+    </form>
+{% endblock %}

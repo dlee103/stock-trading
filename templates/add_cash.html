@@ -1,0 +1,35 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Deposit Cash
+{% endblock %}
+
+{% block main %}
+<div class="add_cash">
+    <table class="table table-striped table-bordered">
+        <thead>
+            <tr>
+                <th>Current Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td> {{ cash | usd}} </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<div>
+    <form class="row g-3 form-center" action="/add_cash" method="post">
+        <div class="col-auto">
+            $
+            <input class="form-control mx-auto w-auto" name="quantity" placeholder="Amount" type="number" step="0.01" min="0">
+        </div>
+
+        <div class="col-auto">
+            <button class="btn btn-primary" type="submit"> Deposit </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

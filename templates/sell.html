@@ -1,0 +1,28 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Sell Stocks
+{% endblock %}
+
+{% block main %}
+
+<!--Refer to buy.html for format notes-->
+
+<form class="row g-3 form-center" action="/sell" method="post">
+    <div class="col-auto">
+        <select class="form-select" aria-label="Company Name" name="symbol">
+            <option disable selected>Company Name</option>
+            {% for stock in stock_name %}
+                <option value="{{ stock.symbol }}"> {{ stock["name"] }} </option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-auto">
+        <input class="form-control mx-auto w-auto" name="shares" placeholder="Quantity" type="number">
+    </div>
+    <div class="col-auto">
+        <button class="btn btn-primary" type="submit">Sell</button>
+    </div>
+</form>
+
+{% endblock %}
