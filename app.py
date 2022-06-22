@@ -6,7 +6,7 @@ from flask_session import Session
 from tempfile import mkdtemp
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from helpers2 import apology, login_required, lookup, usd
+from helpers import apology, login_required, lookup, usd
 
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
@@ -15,7 +15,7 @@ from datetime import datetime
 app = Flask(__name__)
 
 #configure SQLAlchemy to use sqlite database
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///finance2.db"
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///finance.db"
 
 # Custom filter
 app.jinja_env.filters["usd"] = usd
@@ -25,9 +25,6 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 #tell app to support sessions
 Session(app)
-
-"""# Configure CS50 Library to use SQLite database
-db = SQL("sqlite:///finance.db")"""
 
 # Ensure templates are auto-reloaded
 app.config["TEMPLATES_AUTO_RELOAD"] = True

@@ -33,17 +33,18 @@ def login_required(f):
             return redirect("/login")
         return f(*args, **kwargs)
     return decorated_function
-
-
 def lookup(symbol):
     """Look up quote for symbol."""
 
     # Contact API
     try:
         #Original version
-        api_key = os.environ.get("API_KEY")
-        url = f"https://cloud.iexapis.com/stable/stock/{urllib.parse.quote_plus(symbol)}/quote?token={api_key}"
+        #api_key = os.environ.get("API_KEY")
+        #url = f"https://cloud.iexapis.com/stable/stock/{urllib.parse.quote_plus(symbol)}/quote?token={api_key}"
 
+        #You need to set the API_KEY variable in the terminal to get the os.envrion.get() function to work
+        #Since I don't want to set the key every time I just put my key in there
+        url = f"https://cloud.iexapis.com/stable/stock/{urllib.parse.quote_plus(symbol)}/quote?token=pk_f5c4331d483747e4bf7707496b209a3c"
         response = requests.get(url)
         response.raise_for_status()
     except requests.RequestException:
