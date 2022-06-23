@@ -90,7 +90,6 @@ class Transactions(db.Model):
 def index():
     """Show portfolio of stocks"""
     #extracting a list of dictionaries containing the stocks the user holds
-    #stocks_owned = db.execute("SELECT * FROM stocks WHERE user_id=?", session["user_id"])
     stocks_owned = Stocks.query.filter_by(user_id = session["user_id"]).all()
 
     #getting how much cash the user currently holds
@@ -150,18 +149,12 @@ def buy():
             return apology("Invalid amount of shares")
 
         #extracting user's current balance
-        #cash = db.execute("SELECT cash FROM users WHERE id = ?", session["user_id"])
-        #cash = cash[0]["cash"]
         user_info = Users.query.filter_by(id = session["user_id"]).first()
 
         #checking whether user has sufficient cash to purchase stocks
         remaining_balance = float(user_info.cash) - info["price"]*qty
         if remaining_balance < 0:
             return apology("Insufficient funds to make purchase")
-
-        #if user does have sufficient cash, update the tables
-        #db.execute("UPDATE users SET cash = ? WHERE id = ?", remaining_balance, session["user_id"])
-        #db.execute("INSERT INTO transactions (user_id, symbol, quantity, amount, type, transaction_time) VALUES(?,?,?,?,?,DATETIME())", session["user_id"], info["symbol"], qty, info["price"]*qty, "Bought")
 
         #Updating the users cash in the table if the user has sufficient cash
         user_info.cash = remaining_balance
@@ -170,14 +163,12 @@ def buy():
         db.session.add(Transactions(user_id=session["user_id"], symbol=info["symbol"], quantity=qty, amount=info["price"]*qty, type="Bought"))
 
         #extracting the qty of stocks the user owns for that particular symbol
-        #existing_stock = db.execute("SELECT quantity FROM stocks WHERE user_id = ? AND symbol = ?", session["user_id"], info["symbol"])
 
         #getting the user's balance info for a particular stock
         user_stock = Stocks.query.filter_by(user_id = session["user_id"], symbol=info["symbol"]).first()
 
         #If user does not own any of that particular stock, add a new row for that stock
         if not user_stock:
-            #db.execute("INSERT INTO stocks (user_id, symbol, quantity) VALUES(?,?,?)", session["user_id"], info["symbol"], qty)
             db.session.add(Stocks(user_id=session["user_id"], symbol=info["symbol"], quantity=qty))
 
         #if user already owns that particular stock
